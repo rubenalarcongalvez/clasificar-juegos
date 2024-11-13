@@ -28,8 +28,8 @@ export interface Videojuego {
 export class AppComponent {
   juegos: Set<string> = new Set();
   listaProveedores: Proveedor[] = [
-    {nombre: 'Meristation', clase: 'ga__tl', activoEnClipboard: false, listadoJuegos: '[\'Zelda\', \'God of War\', \'La rebelación de Smaug\', \'Ratchet & Clank\']'},
-    {nombre: '3djuegos', clase: 's18 dib c0', activoEnClipboard: false, listadoJuegos: '[\'Zelda\', \'God of War\', \'La rebelación de Smaug\', \'Ratchet & Clank\']'},
+    {nombre: 'Meristation', clase: 'ga__tl', activoEnClipboard: false, listadoJuegos: ''},
+    {nombre: '3djuegos', clase: 's18 dib c0', activoEnClipboard: false, listadoJuegos: ''},
   ];
 
   fechasElegidas: string | Date = this.formatoDosDigitos(new Date().getMonth()) + '/' + new Date().getFullYear().toString();
