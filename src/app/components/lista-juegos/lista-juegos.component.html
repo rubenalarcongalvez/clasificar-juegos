@@ -25,11 +25,11 @@
     @for (juego of listaJuegosFiltrada; track juego.nombre) {
         <section class="flex gap-2 w-full items-center my-2">
             <article class="cursor-pointer">
-                <img width="75" height="50" src="youtube.png" alt="Ver Gameplay" pTooltip="Ver Gameplay" tooltipPosition="top">
+                <img width="75" height="50" src="youtube.png" alt="Ver Gameplay" pTooltip="Ver Gameplay" tooltipPosition="top" (click)="irALaUrlDelJuego(juego)">
             </article>
             <article class="flex flex-col gap-2 grow items-start justify-start">
                 <h4 class="m-0 p-0">{{ juego.nombre }}</h4>
-                <p class="m-0 p-0 texto-enlace">URL: <a target="_blank" [href]="juego.urlYoutube">{{ juego.urlYoutube }}</a></p>
+                <p class="m-0 p-0 texto-enlace">URL: <a (click)="irALaUrlDelJuego(juego)">{{ juego.urlYoutube }}</a></p>
             </article>
             
             <article class="pl-1 cursor-pointer text-red-600 hover:text-red-400 text-lg" pTooltip="Eliminar de la lista" tooltipPosition="left" (click)="borrarJuego(juego.nombre)">

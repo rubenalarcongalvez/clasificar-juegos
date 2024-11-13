@@ -30,6 +30,16 @@ export class ListaJuegosComponent {
 
   constructor(private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
+  irALaUrlDelJuego(juego: Videojuego) {
+    //Primero, copiamos el nombre del juego
+    navigator.clipboard.writeText(juego.nombre);
+    this.messageService.add({ severity: 'info', summary: 'Nombre del juego copiado', detail: 'Para pegarlo en Grouvee', life: 3000 });
+
+    setTimeout(() => {
+      window.open(juego.urlYoutube);
+    }, 1000);
+  }
+
   confirmarBorradoDeLista(event: Event) {
       this.confirmationService.confirm({
           target: event.target as EventTarget,

@@ -109,7 +109,7 @@ textosJuegos;
         this.listaProveedores.forEach(p => p.activoEnClipboard = false);
         switch(nombreProveedor) {
           case 'Meristation': {
-            window.open(`https://as.com/meristation/juegos/lanzamientos/${anoElegido}/${mesElegido}/`);   
+            window.open(`https://as.com/meristation/juegos/lanzamientos/${anoElegido}/${mesElegido}/`);
             break;
           }
           case '3djuegos': {
