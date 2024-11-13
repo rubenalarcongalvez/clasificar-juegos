@@ -119,7 +119,7 @@ textosJuegos;
 
     if (!this.listaProveedores.find(p => p.activoEnClipboard)) {
       this.listaProveedores.forEach(p => p.activoEnClipboard = (p.nombre == nombreProveedor));
-      this.messageService.add({ severity: 'success', summary: 'Mensaje copiado. Redireccionando...', detail: 'Ahora, pégalo en la consola de la página objetivo', closable: true, life: 3000 });
+      this.messageService.add({ severity: 'success', summary: 'Código JS copiado. Redireccionando...', detail: 'Ahora, pégalo en la consola de la página objetivo', closable: true, life: 3000 });
   
       setTimeout(() => {
         const fechaElegida = new Date(this.fechasElegidas);
