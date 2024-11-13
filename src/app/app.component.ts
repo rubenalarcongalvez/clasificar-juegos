@@ -32,7 +32,7 @@ export class AppComponent {
     {nombre: '3djuegos', clase: 's18 dib c0', activoEnClipboard: false, listadoJuegos: ''},
   ];
 
-  fechasElegidas: string | Date = this.formatoDosDigitos(new Date().getMonth()) + '/' + new Date().getFullYear().toString();
+  fechasElegidas: Date = new Date();
   listaMostrada: string = 'revisar';
   listaJuegosPorVer: Videojuego[] = [];
   listaJuegosRevisados: Videojuego[] = [];
