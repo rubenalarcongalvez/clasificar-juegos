@@ -51,11 +51,29 @@ export class AppComponent {
     return numero < 10 ? `0${numero}` : numero.toString();
   }
 
+  private convertirACadenaArray(cadena: string): string[] {
+    try {
+      // Elimina los corchetes al inicio y al final de la cadena
+      const sinCorchetes = cadena.trim().slice(1, -1);
+  
+      // Divide la cadena en elementos individuales usando comas y espacios
+      const elementos = sinCorchetes.split(/,(?=\s*['"])/);
+  
+      // Limpia los elementos para quitar comillas y filtra entradas vacías
+      return elementos
+        .map(elemento => elemento.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(elemento => elemento !== '');
+    } catch (error) {
+      console.error("Error al convertir la cadena:", error);
+      return [];
+    }
+  }
+
   anadirAListadoPorVer() {
     try {
       this.listaProveedores.forEach(p => {
         const juegos: string[] = typeof p.listadoJuegos === 'string'
-          ? (p?.listadoJuegos ? JSON.parse(p?.listadoJuegos?.replaceAll(/'/g, '"')) : [])
+          ? this.convertirACadenaArray(p.listadoJuegos)
           : p.listadoJuegos;
     
         juegos.forEach(nombreJuego => {
@@ -67,8 +85,9 @@ export class AppComponent {
             });
           }
         });
+
+        p.listadoJuegos = ''; //Reseteamos el input
       });
-  
       this.messageService.add({ severity: 'info', summary: 'Juegos añadidos', detail: 'Juegos añadidos al listado con éxito', life: 3000 });
       localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
     } catch {
