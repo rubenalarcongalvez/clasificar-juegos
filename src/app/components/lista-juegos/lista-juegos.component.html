@@ -1,0 +1,51 @@
+<main class="w-full">
+    <p-confirmPopup />
+
+    <section class="flex gap-2 w-full items-center justify-start mb-3">
+        <p-button (click)="confirmarBorradoDeLista($event)" severity="secondary" label="Limpiar lista"></p-button>
+        <article class="grow relative">
+            <input type="text" class="w-full pr-8" pInputText [(ngModel)]="filtro" placeholder="Buscar videojuego...">
+            @if (filtro) {
+                <i class="pi pi-times clear-btn absolute right-3 top-3 cursor-pointer hover:text-red-500" (click)="filtro = ''"></i>
+            }
+        </article>
+    </section>
+    <section class="flex gap-2 w-full items-center justify-start">
+        <article class="grow relative">
+            <input type="text" (keydown.enter)="anadirJuegoLista()" class="w-full pr-8" pInputText [(ngModel)]="juegoAnadir" placeholder="Añadir videojuego...">
+            @if (juegoAnadir) {
+                <i class="pi pi-times clear-btn absolute right-3 top-3 cursor-pointer hover:text-red-500" (click)="juegoAnadir = ''"></i>
+            }
+        </article>
+        <p-button (click)="anadirJuegoLista()" label="Añadir Juego"></p-button>
+    </section>
+
+    <br>
+
+    @for (juego of listaJuegosFiltrada; track juego.nombre) {
+        <section class="flex gap-2 w-full items-center my-2">
+            <article class="cursor-pointer">
+                <img width="75" height="50" src="youtube.png" alt="Ver Gameplay" pTooltip="Ver Gameplay" tooltipPosition="top">
+            </article>
+            <article class="flex flex-col gap-2 grow items-start justify-start">
+                <h4 class="m-0 p-0">{{ juego.nombre }}</h4>
+                <p class="m-0 p-0 texto-enlace">URL: <a target="_blank" [href]="juego.urlYoutube">{{ juego.urlYoutube }}</a></p>
+            </article>
+            
+            <article class="pl-1 cursor-pointer text-red-600 hover:text-red-400 text-lg" pTooltip="Eliminar de la lista" tooltipPosition="left" (click)="borrarJuego(juego.nombre)">
+                <i class="pi pi-trash"></i>
+            </article>
+            @if (!revisados) {
+                <article class="pl-1 cursor-pointer text-green-600 hover:text-green-400 text-lg" pTooltip="Marcar como revisado" tooltipPosition="left" (click)="marcarComoRevisadoLista(juego)">
+                    <i class="pi pi-check"></i>
+               </article>
+            } @else {
+                <article class="pl-1 cursor-pointer text-orange-500 hover:text-orange-400 text-lg" pTooltip="Volver a revisar" tooltipPosition="left" (click)="volverARevisarLista(juego)">
+                    <i class="pi pi-undo"></i>
+               </article> 
+            }
+        </section>
+    } @empty {
+        <h1>No hay videojuegos en esta lista.</h1>
+    }
+</main>

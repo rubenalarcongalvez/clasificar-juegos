@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.css";
+@import "primeicons/primeicons.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+textarea {
+    padding: 5px;
+    resize: none;
+    line-height: 1.5rem;
+}
+
+.wrapear * {
+    text-wrap: wrap;
+    flex-wrap: wrap;
+}
