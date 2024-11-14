@@ -1,6 +1,6 @@
 {
   "name": "clasificar-juegos",
-  "version": "1.4",
+  "version": "1.4.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

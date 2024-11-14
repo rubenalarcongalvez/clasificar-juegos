@@ -127,7 +127,7 @@ textosJuegos;
   
       setTimeout(() => {
         const fechaElegida = new Date(this.fechasElegidas);
-        const mesElegido = this.formatoDosDigitos(fechaElegida.getMonth());
+        const mesElegido = this.formatoDosDigitos(fechaElegida.getMonth() + 1); //Es +1 porque empieza en 0
         const anoElegido = fechaElegida.getFullYear();
         this.listaProveedores.forEach(p => p.activoEnClipboard = false);
         switch(nombreProveedor) {
