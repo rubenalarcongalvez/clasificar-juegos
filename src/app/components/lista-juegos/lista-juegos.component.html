@@ -51,6 +51,7 @@
                     } @else if (revisados && juego.descartado) {
                         <i class="pi pi-thumbs-down-fill text-red-600 ms-2" pTooltip="Descartado"></i>
                     }
+                    <i (click)="buscarInfoGoogle(juego.nombre)" class="pi pi-info-circle ms-2 text-blue-600 cursor-pointer" pTooltip="Información en Google"></i>
                 </h4>
                 <p class="m-0 p-0 texto-enlace">URL: <a (click)="irALaUrlDelJuego(juego)">{{ juego.urlYoutube }}</a></p>
             </article>

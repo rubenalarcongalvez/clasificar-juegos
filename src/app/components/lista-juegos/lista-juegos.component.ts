@@ -61,6 +61,10 @@ export class ListaJuegosComponent {
     }, 1000);
   }
 
+  buscarInfoGoogle(nombreJuego: string) {
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(nombreJuego)}+videojuego`)
+  }
+
   confirmarBorradoDeLista(event: Event) {
       this.confirmationService.confirm({
           target: event.target as EventTarget,
