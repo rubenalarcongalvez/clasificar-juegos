@@ -150,7 +150,7 @@ textosJuegos;
       this.listaJuegosPorVer.splice(indiceVideojuego, 1);
       this.listaJuegosRevisados.unshift(videojuego); //Al principio
       if (videojuego.descartado) {
-        this.messageService.add({ severity: 'warn', summary: 'Juego revisado descartado', detail: `"${videojuego.nombre}" añadido al listado de revisados (marcado como descartado)`, life: 3000 });
+        this.messageService.add({ severity: 'info', summary: 'Juego revisado descartado', detail: `"${videojuego.nombre}" añadido al listado de revisados (marcado como descartado)`, life: 3000 });
       } else {
         this.messageService.add({ severity: 'success', summary: 'Juego revisado aceptado', detail: `"${videojuego.nombre}" añadido al listado de revisados (en Grouvee)`, life: 3000 });
       }
