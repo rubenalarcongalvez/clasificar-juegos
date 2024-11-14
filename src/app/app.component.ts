@@ -38,7 +38,10 @@ export class AppComponent {
   listaJuegosPorVer: Videojuego[] = [];
   listaJuegosRevisados: Videojuego[] = [];
 
-  constructor(private messageService: MessageService, private cdr: ChangeDetectorRef) {}
+  constructor(private messageService: MessageService, private cdr: ChangeDetectorRef) {
+    //3 meses antes
+    this.fechasElegidas.setMonth(this.fechasElegidas.getMonth() - 3);
+  }
 
   ngAfterViewInit() {
     if (typeof window !== 'undefined' && window.localStorage) {
