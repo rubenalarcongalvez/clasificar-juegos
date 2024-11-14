@@ -31,6 +31,7 @@ export class ListaJuegosComponent {
   public set filtro(v : string) {
     this.filtroSignal.set(v);
   }
+  listaOpcionesMostradas: string[] = [];
   juegoAnadir: string = '';
 
   /* Paginacion */
@@ -53,7 +54,7 @@ export class ListaJuegosComponent {
   irALaUrlDelJuego(juego: Videojuego) {
     //Primero, copiamos el nombre del juego
     navigator.clipboard.writeText(juego.nombre);
-    this.messageService.add({ severity: 'info', summary: 'Nombre del juego copiado', detail: 'Para pegarlo en Grouvee', life: 3000 });
+    this.messageService.add({ severity: 'info', summary: 'Nombre del juego copiado', detail: 'Para buscar más información', life: 3000 });
 
     setTimeout(() => {
       window.open(juego.urlYoutube);
@@ -82,7 +83,7 @@ export class ListaJuegosComponent {
   }
 
   public get listaJuegosFiltrada() : Videojuego[] {
-    return this.listaJuegos.filter(juego => normalizarCadena(juego.nombre).includes(normalizarCadena(this.filtro)));
+    return this.listaJuegos.filter(juego => (!this.listaOpcionesMostradas.length || this.listaOpcionesMostradas.includes('aceptados') && !juego.descartado || this.listaOpcionesMostradas.includes('descartados') && juego.descartado) && normalizarCadena(juego.nombre).includes(normalizarCadena(this.filtro)));
   }
 
   public get listaJuegosFiltradaPaginada() : Videojuego[] {
@@ -102,7 +103,7 @@ export class ListaJuegosComponent {
     const indiceJuego: number = this.listaJuegos.findIndex(j => j.nombre === nombreJuego);
     if (indiceJuego >= 0) {
       this.listaJuegos.splice(indiceJuego, 1);
-      this.messageService.add({ severity: 'warn', summary: 'Juego borrado', detail: 'Juego eliminado de la lista', life: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'Juego borrado', detail: `"${nombreJuego}" eliminado de la lista`, life: 3000 });
       if (!this.revisados) {
         localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegos));
       } else {
@@ -111,8 +112,16 @@ export class ListaJuegosComponent {
     }
   }
 
-  marcarComoRevisadoLista(videojuego: Videojuego) {
+  marcarComoRevisadoLista(videojuego: Videojuego, descartado: boolean = false) {
+    videojuego.descartado = descartado;
     this.marcarComoRevisado.emit(videojuego);
+
+    if (!descartado) {
+      //Vamos a anadirlo en Grouvee
+      setTimeout(() => {
+        window.open(`https://www.grouvee.com/search/?q=${encodeURIComponent(videojuego.nombre)}`);
+      }, 1000);
+    }
   }
 
   volverARevisarLista(videojuego: Videojuego) {

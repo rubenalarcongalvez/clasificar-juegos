@@ -31,3 +31,10 @@ a:focus {
     outline-offset: 2px;
 }  
   
+
+:host ::ng-deep {
+    .p-selectbutton.p-buttonset * {
+        padding: 5px;
+        font-size: 14px;
+    }
+}

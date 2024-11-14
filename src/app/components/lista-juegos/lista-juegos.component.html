@@ -24,22 +24,42 @@
 
     <br>
 
-    <!-- <h3>Total: <span>{{ listaJuegosFiltrada.length }}</span></h3> -->
+    @if (revisados) {
+        <section class="flex justify-center items-center">
+            <p-selectButton 
+                [options]="[{ name: 'Aceptados', value: 'aceptados' }, { name: 'Descartados', value: 'descartados' }]" 
+                [(ngModel)]="listaOpcionesMostradas" 
+                multiple
+                optionLabel="name" 
+                optionValue="value" 
+            />
+        </section>
+    }
     @for (juego of listaJuegosFiltradaPaginada; track juego.nombre) {
         <section class="flex gap-2 w-full items-center my-2">
+            <article class="pl-1 cursor-pointer text-red-600 hover:text-red-400 text-lg mr-2" pTooltip="Eliminar de la lista" tooltipPosition="left" (click)="borrarJuego(juego.nombre)">
+                <i class="pi pi-trash"></i>
+            </article>
             <article class="cursor-pointer">
                 <img width="75" height="50" src="youtube.png" alt="Ver Gameplay" pTooltip="Ver Gameplay" tooltipPosition="top" (click)="irALaUrlDelJuego(juego)">
             </article>
             <article class="flex flex-col gap-2 grow items-start justify-start">
-                <h4 class="m-0 p-0">{{ juego.nombre }}</h4>
+                <h4 class="m-0 p-0">
+                    <span>{{ juego.nombre }}</span>
+                    @if (revisados && !juego.descartado) {
+                        <i class="pi pi-thumbs-up-fill text-green-600 ms-2" pTooltip="Aceptado"></i>
+                    } @else if (revisados && juego.descartado) {
+                        <i class="pi pi-thumbs-down-fill text-red-600 ms-2" pTooltip="Descartado"></i>
+                    }
+                </h4>
                 <p class="m-0 p-0 texto-enlace">URL: <a (click)="irALaUrlDelJuego(juego)">{{ juego.urlYoutube }}</a></p>
             </article>
             
-            <article class="pl-1 cursor-pointer text-red-600 hover:text-red-400 text-lg" pTooltip="Eliminar de la lista" tooltipPosition="left" (click)="borrarJuego(juego.nombre)">
-                <i class="pi pi-trash"></i>
-            </article>
             @if (!revisados) {
-                <article class="pl-1 cursor-pointer text-green-600 hover:text-green-400 text-lg" pTooltip="Marcar como revisado" tooltipPosition="left" (click)="marcarComoRevisadoLista(juego)">
+                <article class="pl-1 cursor-pointer text-red-600 hover:text-red-400 text-lg" pTooltip="Descartar" tooltipPosition="left" (click)="marcarComoRevisadoLista(juego, true)">
+                    <i class="pi pi-times"></i>
+               </article>
+                <article class="pl-1 cursor-pointer text-green-600 hover:text-green-400 text-lg" pTooltip="Añadir a Grouvee" tooltipPosition="left" (click)="marcarComoRevisadoLista(juego)">
                     <i class="pi pi-check"></i>
                </article>
             } @else {

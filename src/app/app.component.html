@@ -54,11 +54,11 @@
                 <p-selectButton 
                   [allowEmpty]="false"
                   [options]="[{ name: 'Revisar', value: 'revisar' }, { name: 'Revisados', value: 'revisados' }]" 
-                  [(ngModel)]="listaMostrada" 
+                  [(ngModel)]="listaOpcionesMostradas" 
                   optionLabel="name" 
                   optionValue="value" 
                 />
-                @if (listaMostrada == 'revisar') {
+                @if (listaOpcionesMostradas == 'revisar') {
                   <app-lista-juegos class="w-full max-w-[1000px]" [(listaJuegos)]="listaJuegosPorVer" (marcarComoRevisado)="handleMarcarComoRevisado($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>
                 } @else {
                   <app-lista-juegos class="w-full max-w-[1000px]" [revisados]="true" [(listaJuegos)]="listaJuegosRevisados" (volverARevisar)="handleVolverARevisar($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>

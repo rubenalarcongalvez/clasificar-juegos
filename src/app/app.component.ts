@@ -14,7 +14,8 @@ interface Proveedor {
 
 export interface Videojuego {
   nombre: string,
-  urlYoutube: string
+  urlYoutube: string,
+  descartado?: boolean,
 }
 
 @Component({
@@ -33,7 +34,7 @@ export class AppComponent {
   ];
 
   fechasElegidas: Date = new Date();
-  listaMostrada: string = 'revisar';
+  listaOpcionesMostradas: string = 'revisar';
   listaJuegosPorVer: Videojuego[] = [];
   listaJuegosRevisados: Videojuego[] = [];
 
@@ -145,7 +146,11 @@ textosJuegos;
     if (indiceVideojuego >= 0) {
       this.listaJuegosPorVer.splice(indiceVideojuego, 1);
       this.listaJuegosRevisados.unshift(videojuego); //Al principio
-      this.messageService.add({ severity: 'success', summary: 'Juego revisado', detail: 'Juego añadido al listado de revisados', life: 3000 });
+      if (videojuego.descartado) {
+        this.messageService.add({ severity: 'warn', summary: 'Juego revisado descartado', detail: `"${videojuego.nombre}" añadido al listado de revisados (marcado como descartado)`, life: 3000 });
+      } else {
+        this.messageService.add({ severity: 'success', summary: 'Juego revisado aceptado', detail: `"${videojuego.nombre}" añadido al listado de revisados (en Grouvee)`, life: 3000 });
+      }
       localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
       localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegosRevisados));
     }
@@ -173,7 +178,8 @@ textosJuegos;
       } else {
         this.listaJuegosRevisados.push({
           nombre: anadirJuego.juegoAnadir,
-          urlYoutube: `https://www.youtube.com/results?search_query=${encodeURIComponent(anadirJuego.juegoAnadir + ' gameplay')}`
+          urlYoutube: `https://www.youtube.com/results?search_query=${encodeURIComponent(anadirJuego.juegoAnadir + ' gameplay')}`,
+          descartado: false
         });
         localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegosRevisados));
       }
