@@ -51,13 +51,19 @@
         <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
             <section>
                <article class="flex flex-col gap-3 justify-center items-center">
-                <p-selectButton 
-                  [allowEmpty]="false"
-                  [options]="[{ name: 'Revisar', value: 'revisar' }, { name: 'Revisados', value: 'revisados' }]" 
-                  [(ngModel)]="listaOpcionesMostradas" 
-                  optionLabel="name" 
-                  optionValue="value" 
-                />
+                <div class="flex gap-2 items-center">
+                  <p-selectButton 
+                    [allowEmpty]="false"
+                    [options]="[{ name: 'Revisar', value: 'revisar' }, { name: 'Revisados', value: 'revisados' }]" 
+                    [(ngModel)]="listaOpcionesMostradas" 
+                    optionLabel="name" 
+                    optionValue="value" 
+                  />
+                  <p-button severity="warning" pTooltip="Añadir juego a Grouvee" (onClick)="anadirJuegoAGrouvee()">
+                    <span>+</span>
+                    <img src="grouvee.png" alt="Grouvee" width="20" height="20">
+                  </p-button>
+                </div>
                 @if (listaOpcionesMostradas == 'revisar') {
                   <app-lista-juegos class="w-full max-w-[1000px]" [(listaJuegos)]="listaJuegosPorVer" (marcarComoRevisado)="handleMarcarComoRevisado($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>
                 } @else {

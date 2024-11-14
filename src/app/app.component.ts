@@ -144,6 +144,10 @@ textosJuegos;
     }
   }
 
+  anadirJuegoAGrouvee() {
+    window.open('https://rubenalarcongalvez.github.io/add-game-to-grouvee/');
+  }
+
   handleMarcarComoRevisado(videojuego: Videojuego) {
     const indiceVideojuego: number = this.listaJuegosPorVer.findIndex(j => j.nombre == videojuego.nombre);
     if (indiceVideojuego >= 0) {
