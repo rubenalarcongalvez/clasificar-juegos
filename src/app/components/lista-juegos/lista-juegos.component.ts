@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, effect, EventEmitter, Input, Output, signal } from '@angular/core';
 import { Videojuego } from '../../app.component';
 import { PrimeNgModule } from '../../shared/style/prime-ng/prime-ng.module';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -9,7 +9,6 @@ export interface AnadirJuego {
   juegoAnadir: string,
   revisados: boolean
 }
-
 @Component({
   selector: 'app-lista-juegos',
   standalone: true,
@@ -25,10 +24,31 @@ export class ListaJuegosComponent {
   @Output('anadirJuego') anadirJuego = new EventEmitter<AnadirJuego>();
   @Output('marcarComoRevisado') marcarComoRevisado = new EventEmitter<Videojuego>();
   @Output('volverARevisar') volverARevisar = new EventEmitter<Videojuego>();
-  filtro: string = '';
+  filtroSignal = signal<string>('');
+  public get filtro() : string {
+    return this.filtroSignal();
+  }
+  public set filtro(v : string) {
+    this.filtroSignal.set(v);
+  }
   juegoAnadir: string = '';
 
-  constructor(private confirmationService: ConfirmationService, private messageService: MessageService) {}
+  /* Paginacion */
+  first: number = 0; //Empieza en la posicion 0
+  rows: number = 5; //Por defecto, va de 5 en 5
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+  }
+
+  constructor(private confirmationService: ConfirmationService, private messageService: MessageService) {
+    /* Cuando el filtro cambie, hay que resetear el primer valor de la lista */
+    effect(() => {
+      if (this.filtroSignal()) {
+        this.first = 0;
+      }
+    });
+  }
 
   irALaUrlDelJuego(juego: Videojuego) {
     //Primero, copiamos el nombre del juego
@@ -63,6 +83,10 @@ export class ListaJuegosComponent {
 
   public get listaJuegosFiltrada() : Videojuego[] {
     return this.listaJuegos.filter(juego => normalizarCadena(juego.nombre).includes(normalizarCadena(this.filtro)));
+  }
+
+  public get listaJuegosFiltradaPaginada() : Videojuego[] {
+    return this.listaJuegosFiltrada.splice(this.first, this.rows);
   }
 
   anadirJuegoLista() {

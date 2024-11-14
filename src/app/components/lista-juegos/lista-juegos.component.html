@@ -1,4 +1,6 @@
 <main class="w-full">
+    <h3 class="mt-0 text-center">Juegos {{ !revisados ? 'por revisar' : 'revisados' }}: <span class="text-blue-600">{{ listaJuegosFiltrada.length }}</span></h3>
+    
     <p-confirmPopup />
 
     <section class="flex gap-2 w-full items-center justify-start mb-3">
@@ -22,7 +24,8 @@
 
     <br>
 
-    @for (juego of listaJuegosFiltrada; track juego.nombre) {
+    <!-- <h3>Total: <span>{{ listaJuegosFiltrada.length }}</span></h3> -->
+    @for (juego of listaJuegosFiltradaPaginada; track juego.nombre) {
         <section class="flex gap-2 w-full items-center my-2">
             <article class="cursor-pointer">
                 <img width="75" height="50" src="youtube.png" alt="Ver Gameplay" pTooltip="Ver Gameplay" tooltipPosition="top" (click)="irALaUrlDelJuego(juego)">
@@ -48,4 +51,11 @@
     } @empty {
         <h1>No hay videojuegos en esta lista.</h1>
     }
+
+    <p-paginator 
+    (onPageChange)="onPageChange($event)" 
+    [first]="first"
+    [rows]="rows" 
+    [totalRecords]="listaJuegosFiltrada.length" 
+    [rowsPerPageOptions]="[5, 10, 25, 50, 100]" />
 </main>

@@ -10,6 +10,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { InputTextModule } from 'primeng/inputtext';
+import { PaginatorModule } from 'primeng/paginator';
 
 @NgModule({
   declarations: [],
@@ -24,7 +25,8 @@ import { InputTextModule } from 'primeng/inputtext';
     InputTextareaModule,
     SelectButtonModule,
     ConfirmPopupModule,
-    InputTextModule
+    InputTextModule,
+    PaginatorModule
   ]
 })
 export class PrimeNgModule { }
