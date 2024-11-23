@@ -1,83 +1,87 @@
-<main class="p-5 w-100 my-0 mx-auto max-w-[1920px]">
-  <p-toast/>
-  <p-stepper orientation="vertical">
-     <p-stepperPanel header="Establecer mes y año para buscar videojuegos">
-          <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
-            <div class="flex flex-col gap-3 pt-4 justify-center items-center">
-                <h4 class="m-0">Por defecto, es la fecha actual - 3 meses (margen para que terminen de rellenar juegos)</h4>
-                <p-calendar 
-                [(ngModel)]="fechasElegidas" 
-                [defaultDate]="fechasElegidas"
-                view="month" 
-                dateFormat="mm/yy" 
-                readonlyInput
-                inline
-                />
-                <p-button label="Siguiente" icon="pi pi-arrow-down" iconPos="right" (onClick)="nextCallback.emit()" />
-              </div>
-          </ng-template>
-      </p-stepperPanel>
-      <p-stepperPanel header="Obtener títulos de los videojuegos en Arrays">
+<div class="min-h-[100vh] flex flex-col justify-between">
+  <main class="p-5 w-100 my-0 max-w-[1920px]">
+    <p-toast/>
+    <p-stepper orientation="vertical">
+       <p-stepperPanel header="Establecer mes y año para buscar videojuegos">
+            <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
+              <div class="flex flex-col gap-3 pt-4 justify-center items-center">
+                  <h4 class="m-0">Por defecto, es la fecha actual - 3 meses (margen para que terminen de rellenar juegos)</h4>
+                  <p-calendar 
+                  [(ngModel)]="fechasElegidas" 
+                  [defaultDate]="fechasElegidas"
+                  view="month" 
+                  dateFormat="mm/yy" 
+                  readonlyInput
+                  inline
+                  />
+                  <p-button label="Siguiente" icon="pi pi-arrow-down" iconPos="right" (onClick)="nextCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Obtener títulos de los videojuegos en Arrays">
+            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
+                <section class="wrapear">
+                  <h1>Los juegos se añadirán a la lista de revisión</h1>
+                  <article class="flex flex-col justify-center items-center gap-2 relative">
+                    @for (proveedor of listaProveedores; track proveedor) {
+                      <div class="flex justify-start gap-3 w-full">
+                        <div class="relative cursor-pointer" (click)="codigoRecolectar(proveedor.clase, proveedor.nombre)" tooltipPosition="bottom" pTooltip="Copiar JavaScript para recolectar de {{ proveedor.nombre }}">
+                          <img width="200" height="200" class="rounded" src="{{proveedor?.nombre?.toLowerCase()}}.png" [alt]="proveedor.nombre">
+                          <p-button [severity]="!proveedor.activoEnClipboard ? 'contrast' : 'success'" class="pi absolute top-2 right-2 text-white" icon="pi {{ !proveedor.activoEnClipboard ? 'pi-clipboard' : 'pi-check' }}"></p-button>
+                        </div>
+      
+                        <div class="grow flex gap-2 items-center">
+                          <textarea pInputTextarea placeholder="Pegar aquí el resultado (después de copiar el objeto resultante)" class="grow h-full" [(ngModel)]="proveedor.listadoJuegos"></textarea>
+                          <section class="flex flex-col gap-2 h-full justify-between py-3">
+                            <i class="pi pi-times cursor-pointer hover:text-blue-500" pTooltip="Borrar Texto" (click)="proveedor.listadoJuegos = ''"></i>
+                            <i class="pi pi-file-import cursor-pointer hover:text-blue-500" pTooltip="Pegar Texto" (click)="pegarTexto(proveedor)"></i>
+                            <i class="pi pi-clipboard cursor-pointer hover:text-blue-500" pTooltip="Copiar Texto" (click)="copiarTexto(proveedor.listadoJuegos.toString())"></i>
+                          </section>
+                        </div>
+                      </div>
+                    }
+                  </article>
+                </section>
+                <div class="flex pt-4 gap-2 justify-between">
+                    <p-button label="Atrás" severity="contrast" icon="pi pi-arrow-up" (onClick)="prevCallback.emit()" />
+                    <p-button label="Añadir al listado por revisar" icon="pi pi-arrow-down" iconPos="right" (onClick)="anadirAListadoPorVer(); nextCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Listado completo de videojuegos (eliminando duplicados)">
           <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
-              <section class="wrapear">
-                <h1>Los juegos se añadirán a la lista de revisión</h1>
-                <article class="flex flex-col justify-center items-center gap-2 relative">
-                  @for (proveedor of listaProveedores; track proveedor) {
-                    <div class="flex justify-start gap-3 w-full">
-                      <div class="relative cursor-pointer" (click)="codigoRecolectar(proveedor.clase, proveedor.nombre)" tooltipPosition="bottom" pTooltip="Copiar JavaScript para recolectar de {{ proveedor.nombre }}">
-                        <img width="200" height="200" class="rounded" src="{{proveedor?.nombre?.toLowerCase()}}.png" [alt]="proveedor.nombre">
-                        <p-button [severity]="!proveedor.activoEnClipboard ? 'contrast' : 'success'" class="pi absolute top-2 right-2 text-white" icon="pi {{ !proveedor.activoEnClipboard ? 'pi-clipboard' : 'pi-check' }}"></p-button>
-                      </div>
-    
-                      <div class="grow flex gap-2 items-center">
-                        <textarea pInputTextarea placeholder="Pegar aquí el resultado (después de copiar el objeto resultante)" class="grow h-full" [(ngModel)]="proveedor.listadoJuegos"></textarea>
-                        <section class="flex flex-col gap-2 h-full justify-between py-3">
-                          <i class="pi pi-times cursor-pointer hover:text-blue-500" pTooltip="Borrar Texto" (click)="proveedor.listadoJuegos = ''"></i>
-                          <i class="pi pi-file-import cursor-pointer hover:text-blue-500" pTooltip="Pegar Texto" (click)="pegarTexto(proveedor)"></i>
-                          <i class="pi pi-clipboard cursor-pointer hover:text-blue-500" pTooltip="Copiar Texto" (click)="copiarTexto(proveedor.listadoJuegos.toString())"></i>
-                        </section>
-                      </div>
-                    </div>
+              <section>
+                 <article class="flex flex-col gap-3 justify-center items-center">
+                  <div class="flex gap-2 items-center">
+                    <p-selectButton 
+                      [allowEmpty]="false"
+                      [options]="[{ name: 'Revisar', value: 'revisar' }, { name: 'Revisados', value: 'revisados' }]" 
+                      [(ngModel)]="listaOpcionesMostradas" 
+                      optionLabel="name" 
+                      optionValue="value" 
+                    />
+                    <p-button severity="warning" pTooltip="Crear juego en Grouvee" (onClick)="anadirJuegoAGrouvee()">
+                      <span>+</span>
+                      <img src="grouvee.png" alt="Grouvee" width="20" height="20">
+                    </p-button>
+                  </div>
+                  @if (listaOpcionesMostradas == 'revisar') {
+                    <app-lista-juegos class="w-full max-w-[1000px]" [(listaJuegos)]="listaJuegosPorVer" (marcarComoRevisado)="handleMarcarComoRevisado($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>
+                  } @else {
+                    <app-lista-juegos class="w-full max-w-[1000px]" [revisados]="true" [(listaJuegos)]="listaJuegosRevisados" (volverARevisar)="handleVolverARevisar($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>
                   }
-                </article>
+                 </article>
+                @if (!listaJuegosRevisados.length && !listaJuegosPorVer.length) {
+                  <p>Si no has añadido elementos, dale a añadir listado en el paso 2 o añadir juego en este paso.</p>
+                }
               </section>
               <div class="flex pt-4 gap-2 justify-between">
                   <p-button label="Atrás" severity="contrast" icon="pi pi-arrow-up" (onClick)="prevCallback.emit()" />
-                  <p-button label="Añadir al listado por revisar" icon="pi pi-arrow-down" iconPos="right" (onClick)="anadirAListadoPorVer(); nextCallback.emit()" />
               </div>
           </ng-template>
       </p-stepperPanel>
-      <p-stepperPanel header="Listado completo de videojuegos (eliminando duplicados)">
-        <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
-            <section>
-               <article class="flex flex-col gap-3 justify-center items-center">
-                <div class="flex gap-2 items-center">
-                  <p-selectButton 
-                    [allowEmpty]="false"
-                    [options]="[{ name: 'Revisar', value: 'revisar' }, { name: 'Revisados', value: 'revisados' }]" 
-                    [(ngModel)]="listaOpcionesMostradas" 
-                    optionLabel="name" 
-                    optionValue="value" 
-                  />
-                  <p-button severity="warning" pTooltip="Crear juego en Grouvee" (onClick)="anadirJuegoAGrouvee()">
-                    <span>+</span>
-                    <img src="grouvee.png" alt="Grouvee" width="20" height="20">
-                  </p-button>
-                </div>
-                @if (listaOpcionesMostradas == 'revisar') {
-                  <app-lista-juegos class="w-full max-w-[1000px]" [(listaJuegos)]="listaJuegosPorVer" (marcarComoRevisado)="handleMarcarComoRevisado($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>
-                } @else {
-                  <app-lista-juegos class="w-full max-w-[1000px]" [revisados]="true" [(listaJuegos)]="listaJuegosRevisados" (volverARevisar)="handleVolverARevisar($event)" (anadirJuego)="handleAnadirJuego($event)"></app-lista-juegos>
-                }
-               </article>
-              @if (!listaJuegosRevisados.length && !listaJuegosPorVer.length) {
-                <p>Si no has añadido elementos, dale a añadir listado en el paso 2 o añadir juego en este paso.</p>
-              }
-            </section>
-            <div class="flex pt-4 gap-2 justify-between">
-                <p-button label="Atrás" severity="contrast" icon="pi pi-arrow-up" (onClick)="prevCallback.emit()" />
-            </div>
-        </ng-template>
-    </p-stepperPanel>
-  </p-stepper>
-</main>
+    </p-stepper>
+  </main>
+  
+  <app-footer></app-footer>
+</div>

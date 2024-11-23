@@ -1,9 +1,10 @@
-import { afterNextRender, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PrimeNgModule } from './shared/style/prime-ng/prime-ng.module';
 import { MessageService } from 'primeng/api';
 import { AnadirJuego, ListaJuegosComponent } from './components/lista-juegos/lista-juegos.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FooterComponent } from './shared/footer/footer.component';
 
 interface Proveedor {
   nombre: string,
@@ -21,7 +22,7 @@ export interface Videojuego {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, PrimeNgModule, ListaJuegosComponent, ReactiveFormsModule, FormsModule],
+  imports: [PrimeNgModule, ListaJuegosComponent, ReactiveFormsModule, FormsModule, FooterComponent],
   providers: [MessageService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
