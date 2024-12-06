@@ -1,10 +1,14 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectorRef, Component, computed, effect } from '@angular/core';
 import { PrimeNgModule } from './shared/style/prime-ng/prime-ng.module';
-import { MessageService } from 'primeng/api';
+import { Message, MessageService } from 'primeng/api';
 import { AnadirJuego, ListaJuegosComponent } from './components/lista-juegos/lista-juegos.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FooterComponent } from './shared/footer/footer.component';
+import { StorageService } from './shared/services/storage.service';
+import { AuthService } from './shared/services/auth.service';
+import { User } from '@angular/fire/auth';
+import { LoginComponent } from './shared/components/login/login.component';
+import { Timestamp } from '@angular/fire/firestore';
 
 interface Proveedor {
   nombre: string,
@@ -22,7 +26,7 @@ export interface Videojuego {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PrimeNgModule, ListaJuegosComponent, ReactiveFormsModule, FormsModule, FooterComponent],
+  imports: [PrimeNgModule, ListaJuegosComponent, ReactiveFormsModule, FormsModule, FooterComponent, LoginComponent],
   providers: [MessageService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -39,7 +43,22 @@ export class AppComponent {
   listaJuegosPorVer: Videojuego[] = [];
   listaJuegosRevisados: Videojuego[] = [];
 
-  constructor(private messageService: MessageService, private cdr: ChangeDetectorRef) {
+  /* Auth */
+  messages: Message[] = [];
+  visibleDeleteUserPopup: boolean = false;
+  visibleUpdateEmailPopup: boolean = false;
+  visibleUpdatePasswordPopup: boolean = false;
+  updateEmailForm: FormGroup = this.fb.group({
+    previousEmail: ['', Validators.required],
+    email: ['', Validators.required],
+    emailConfirmation: ['', Validators.required],
+  });
+  updatePasswordForm: FormGroup = this.fb.group({
+    password: ['', Validators.required],
+    passwordConfirmation: ['', Validators.required],
+  });
+
+  constructor(private messageService: MessageService, private cdr: ChangeDetectorRef, private storageService: StorageService, private authService: AuthService, private fb: FormBuilder) {
     //3 meses antes
     this.fechasElegidas.setMonth(this.fechasElegidas.getMonth() - 3);
   }
@@ -49,6 +68,7 @@ export class AppComponent {
       this.listaJuegosPorVer = JSON.parse(localStorage.getItem('listaJuegosPorVer')!) ?? [];
       this.listaJuegosRevisados = JSON.parse(localStorage.getItem('listaJuegosRevisados')!) ?? [];
     }
+    this.inicializarDatosBBDD();
     this.cdr.detectChanges();
   }
 
@@ -95,6 +115,7 @@ export class AppComponent {
       });
       this.messageService.add({ severity: 'info', summary: 'Juegos añadidos', detail: 'Juegos añadidos al listado con éxito', life: 3000 });
       localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
+      this.actualizarListaRevisar();
     } catch {
       this.messageService.add({ severity: 'error', summary: 'Problema de formato', detail: 'No se añadieron los juegos debido a un problema de formato', life: 3000 });
     }
@@ -160,7 +181,9 @@ textosJuegos;
         this.messageService.add({ severity: 'success', summary: 'Juego revisado aceptado', detail: `"${videojuego.nombre}" añadido al listado de revisados (en Grouvee)`, life: 3000 });
       }
       localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
+      this.actualizarListaRevisar();
       localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegosRevisados));
+      this.actualizarListaRevisados();
     }
   }
 
@@ -171,7 +194,9 @@ textosJuegos;
       this.listaJuegosPorVer.unshift(videojuego); //Al principio
       this.messageService.add({ severity: 'info', summary: 'Juego mandado a revisión', detail: 'Juego añadido al listado de revisión', life: 3000 });
       localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
+      this.actualizarListaRevisar();
       localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegosRevisados));
+      this.actualizarListaRevisados();
     }
   }
 
@@ -183,6 +208,7 @@ textosJuegos;
           urlYoutube: `https://www.youtube.com/results?search_query=${encodeURIComponent(anadirJuego.juegoAnadir + ' gameplay')}`
         });
         localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
+        this.actualizarListaRevisar();
       } else {
         this.listaJuegosRevisados.push({
           nombre: anadirJuego.juegoAnadir,
@@ -190,9 +216,182 @@ textosJuegos;
           descartado: false
         });
         localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegosRevisados));
+        this.actualizarListaRevisados();
       }
 
       this.messageService.add({ severity: 'info', summary: 'Juego añadido', detail: 'Juego añadido al listado con éxito', life: 3000 });
     }
   }
+
+  /*=============================================
+  =            Auth            =
+  =============================================*/
+  
+  get loggedIn() : boolean {
+    // return this.authService.getCurrentUser() != null; //It is a bit slow to detect it on first instance
+    return this.storageService.isLoggedIn(); //In case we use localStorage
+  } 
+  
+  get getUser() : User | null {
+    return this.authService.getCurrentUser();
+  }
+
+  isEmailAuth(): boolean {
+    if (this.getUser && this.getUser?.providerData?.findIndex(p => p.providerId === 'password') != -1) {
+      return true;
+    }
+    return false;
+  }
+
+  updateUserEmail() {
+    if (this.updateEmailForm.get('previousEmail')?.value == this.getUser?.email && this.updateEmailForm.valid && this.updateEmailForm.get('email')?.value == this.updateEmailForm.get('emailConfirmation')?.value) {
+      this.authService.updateEmail(this.getUser!, this.updateEmailForm.get('email')?.value).then(() => {
+        this.updateEmailForm.reset();
+        this.visibleUpdateEmailPopup = false;
+        this.messageService.add({ severity: 'info', summary: 'Confirma tu email', detail: 'Por favor, confirma tu email antes de ingresar', life: 3000 });
+      }).catch((err: Error) => {
+        if (err.message.includes('requires-recent-login')) {
+          this.messageService.add({ severity: 'warn', summary: 'Inicia sesión', detail: 'Debes iniciar sesión de nuevo para realizar esta acción', life: 3000 });
+          setTimeout(() => {
+            this.logout();
+          }, 2000); 
+        } else {
+          this.messages = [({ severity: 'error', summary: 'Error en el email', detail: 'No puedes cambiar a este email', life: 3000 })];
+        }
+        console.error(err);
+      });
+    } else {
+      this.messages = [];
+      if (this.updateEmailForm.get('previousEmail')?.value != this.getUser?.email) {
+        this.messages.push({ severity: 'error', summary: 'Email anterior inválido', detail: 'Por favor, ingresa correctamente el correo anterior', life: 3000 });
+      }
+      if (this.updateEmailForm.invalid) {
+        this.messages.push({ severity: 'warn', summary: 'Nuevo email inválido', detail: 'Por favor, ingresa un correo válido', life: 3000 });
+      }
+      if (this.updateEmailForm.get('email')?.value != this.updateEmailForm.get('emailConfirmation')?.value) {
+        this.messages.push({ severity: 'warn', summary: 'Emails no coinciden', detail: 'Los nuevos correos no coinciden', life: 3000 });
+      }
+    }
+  }
+
+  updateUserPassword() {
+    if (this.updatePasswordForm.valid && this.updatePasswordForm.get('password')?.value == this.updatePasswordForm.get('passwordConfirmation')?.value) {
+      this.authService.updatePassword(this.getUser!, this.updatePasswordForm.get('password')?.value).then(() => {
+        this.updatePasswordForm.reset();
+        this.visibleUpdatePasswordPopup = false;
+        this.messageService.add({ severity: 'info', summary: 'Contraseña cambiada', detail: 'Contraseña cambiada con éxito', life: 3000 });
+      }).catch((err: Error) => {
+        if (err.message.includes('requires-recent-login')) {
+          this.messageService.add({ severity: 'warn', summary: 'Inicia sesión', detail: 'Debes iniciar sesión de nuevo para realizar esta acción', life: 3000 });
+          setTimeout(() => {
+            this.logout();
+          }, 2000); 
+          this.logout();
+        } else {
+          this.messages = [({ severity: 'error', summary: 'Error de contraseña', detail: 'No puedes poner esta contraseña', life: 3000 })];
+        }
+        console.error(err);
+      });
+    } else {
+      this.messages = [];
+      if (this.updatePasswordForm.invalid) {
+        this.messages.push({ severity: 'warn', summary: 'Contraseña inválida', detail: 'La contraseña debe ser al menos de 6 caracteres y máximo 30, y no puede contener <code>|\\/</code>', life: 3000 });
+      }
+      if (this.updatePasswordForm.get('password')?.value != this.updatePasswordForm.get('passwordConfirmation')?.value) {
+        this.messages.push({ severity: 'warn', summary: 'Contraseñas no coinciden', detail: 'Las nuevas contraseñas no coinciden', life: 3000 });
+      }
+    }
+  }
+
+  deleteUser() {
+    this.authService.deleteUser(this.getUser!).then(() => {
+      this.visibleDeleteUserPopup = false;
+      this.messageService.add({ severity: 'info', summary: 'Usuario eliminado', detail: 'Usuario eliminado con éxito', life: 3000 });
+      setTimeout(() => {
+        this.logout();
+      }, 2000);
+    }).catch((err: Error) => {
+      if (err.message.includes('requires-recent-login')) {
+        this.messageService.add({ severity: 'warn', summary: 'Inicia sesión', detail: 'Debes iniciar sesión de nuevo para realizar esta acción', life: 3000 });
+        setTimeout(() => {
+          this.logout();
+        }, 2000); 
+        this.logout();
+      } 
+      console.error(err);
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+  
+  /*=====  Final de Auth  ======*/
+
+  /*=============================================
+  =            Database            =
+  =============================================*/
+
+  private convertirTimestampADate(fecha: Timestamp) {
+    // Convertir a milisegundos y sumar nanosegundos
+    const milliseconds = fecha.seconds * 1000 + Math.floor(fecha.nanoseconds / 1e6);
+    
+    // Crear un objeto Date
+    return new Date(milliseconds);
+  }
+
+  inicializarDatosBBDD() {
+    this.authService.getCurrentUserPeticion().subscribe((user) => {
+      if (user) {
+        this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/fechas-elegidas`).subscribe({
+          next: (resp: any) => {
+            this.fechasElegidas = this.convertirTimestampADate(resp?.['fechasElegidas']);
+          },
+          error: (err: any) => {
+            console.error(err);
+          }
+        });
+        this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisar`).subscribe({
+          next: (resp: any) => {
+            if (resp?.length) {
+              this.listaJuegosPorVer = resp?.['listaJuegosPorVer'];
+            }
+          },
+          error: (err: any) => {
+            console.error(err);
+          }
+        });
+        this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisados`).subscribe({
+          next: (resp: any) => {
+            if (resp?.length) {
+              this.listaJuegosRevisados = resp?.['listaJuegosRevisados'];
+            }
+          },
+          error: (err: any) => {
+            console.error(err);
+          }
+        });
+      }
+    });
+  }
+  
+  actualizarFecha() {
+    return this.storageService.setDocumentByAddress(`clasificar-juegos/users/${this.authService.getCurrentUser()?.uid}/fechas-elegidas`, {
+      fechasElegidas: this.fechasElegidas
+    });
+  }
+
+  actualizarListaRevisar() {
+    return this.storageService.setDocumentByAddress(`clasificar-juegos/users/${this.authService.getCurrentUser()?.uid}/revisar`, {
+      listaJuegosPorVer: this.listaJuegosPorVer
+    });
+  }
+
+  actualizarListaRevisados() {
+    return this.storageService.setDocumentByAddress(`clasificar-juegos/users/${this.authService.getCurrentUser()?.uid}/revisados`, {
+      listaJuegosRevisados: this.listaJuegosRevisados
+    });
+  }
+  
+  /*=====  Final de Database  ======*/
 }

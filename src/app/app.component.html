@@ -1,21 +1,38 @@
 <div class="min-h-[100vh] flex flex-col justify-between">
   <main class="p-5 w-100 my-0 max-w-[1920px]">
     <p-toast/>
+      <p-accordion>
+        <p-accordionTab [header]="!loggedIn ? 'Iniciar sesión o registrarse para guardar los datos' : 'Opciones usuario'">
+          <div class="flex items-center gap-2 flex-wrap justify-center">
+            @if (!loggedIn) {
+              <app-login class="w-full flex justify-center"></app-login>
+            } @else {
+              @if(isEmailAuth()) {
+                <p-button (onClick)="visibleUpdateEmailPopup = true" icon="pi pi-user-edit" label="Actualizar email"></p-button>
+                <p-button (onClick)="visibleUpdatePasswordPopup = true" icon="pi pi-pencil" label="Actualizar contraseña"></p-button>
+              }
+              <p-button severity="danger" (onClick)="visibleDeleteUserPopup = true" icon="pi pi-trash" label="Eliminar usuario"></p-button>
+              <p-button severity="contrast" (onClick)="logout()" label="Cerrar sesión"/>
+            }
+          </div>
+        </p-accordionTab>
+      </p-accordion>
     <p-stepper orientation="vertical">
        <p-stepperPanel header="Establecer mes y año para buscar videojuegos">
             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
               <div class="flex flex-col gap-3 pt-4 justify-center items-center">
-                  <h4 class="m-0">Por defecto, es la fecha actual - 3 meses (margen para que terminen de rellenar juegos)</h4>
+                  <h4 class="m-0">Por defecto, es: <code class="bg-gray-800 text-white rounded p-1">La fecha actual -3 meses</code> (margen para que terminen de rellenar juegos). A no ser que establezcas otra fecha estando logueado.</h4>
                   <p-calendar 
                   [(ngModel)]="fechasElegidas" 
                   [defaultDate]="fechasElegidas"
+                  (onSelect)="actualizarFecha()"
                   view="month" 
                   dateFormat="mm/yy" 
                   readonlyInput
                   inline
                   />
                   <p-button label="Siguiente" icon="pi pi-arrow-down" iconPos="right" (onClick)="nextCallback.emit()" />
-                </div>
+              </div>
             </ng-template>
         </p-stepperPanel>
         <p-stepperPanel header="Obtener títulos de los videojuegos en Arrays">
@@ -85,3 +102,112 @@
   
   <app-footer></app-footer>
 </div>
+
+
+<!-- Popups -->
+<!-- Update email -->
+<p-dialog 
+    header="Header" 
+    [(visible)]="visibleUpdateEmailPopup" 
+    [modal]="true" 
+    [dismissableMask]="true"
+    [style]="{ width: '25rem', minWidth: '25rem', minHeight: '215px' }"
+    styleClass="p-3 bg-white"
+>
+    <ng-template pTemplate="header">
+        <h2 class="text-blue-600">Actualizar email</h2>
+    </ng-template>
+    
+    <form [formGroup]="updateEmailForm" (ngSubmit)="updateUserEmail()" (keydown.enter)="updateUserEmail()" class="flex flex-col items-center gap-3 w-full py-2">
+        <input placeholder="Email anterior" pInputText id="previousEmail" class="flex-auto w-full text-lg" autocomplete="off" formControlName="previousEmail"/>
+        <input placeholder="Nuevo Email" pInputText id="email" class="flex-auto w-full text-lg" autocomplete="off" formControlName="email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"/>
+        <input placeholder="Confirmar Nuevo Email" pInputText id="emailConfirmation" class="flex-auto w-full text-lg" autocomplete="off" formControlName="emailConfirmation"/>
+
+        <p-messages class="w-full" [escape]="false" [(value)]="messages" [enableService]="false"></p-messages>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 p-2">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                styleClass="cancel"
+                (onClick)="visibleUpdateEmailPopup = false" 
+            />
+            <p-button 
+                label="Actualizar" 
+                [outlined]="true" 
+                (onClick)="updateUserEmail()" 
+            />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Update password -->
+<p-dialog 
+header="Header" 
+[(visible)]="visibleUpdatePasswordPopup" 
+[modal]="true" 
+[dismissableMask]="true"
+[style]="{ width: '25rem', minWidth: '25rem', minHeight: '215px' }"
+styleClass="p-3 bg-white"
+>
+    <ng-template pTemplate="header">
+        <h2 class="text-blue-600">Actualizar contraseña</h2>
+    </ng-template>
+
+    <form [formGroup]="updatePasswordForm" (ngSubmit)="updateUserPassword()" (keydown.enter)="updateUserPassword()" class="flex flex-col items-center gap-3 w-full py-2">
+        <input placeholder="Nueva Contraseña" pInputText id="password" class="flex-auto w-full text-lg" autocomplete="off" formControlName="password" type="password"/>
+        <input placeholder="Confirmar Nueva Contraseña" pInputText id="passwordConfirmation" class="flex-auto w-full text-lg" autocomplete="off" formControlName="passwordConfirmation" type="password"/>
+
+        <p-messages class="w-full" [escape]="false" [(value)]="messages" [enableService]="false"></p-messages>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 p-2">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                styleClass="cancel"
+                (onClick)="visibleUpdatePasswordPopup = false" 
+            />
+            <p-button 
+                label="Actualizar" 
+                [outlined]="true" 
+                (onClick)="updateUserPassword()" 
+            />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete user -->
+<p-dialog 
+    header="Header" 
+    [(visible)]="visibleDeleteUserPopup" 
+    [modal]="true" 
+    [dismissableMask]="true"
+    styleClass="p-3 bg-white"
+>
+    <ng-template pTemplate="header">
+        <h2 class="text-red-600">ATENCIÓN</h2>
+    </ng-template>
+    
+    <p class="text-center py-2">¿Estás seguro de que quieres eliminar tu usuario?</p>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 p-2">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                styleClass="cancel"
+                (onClick)="visibleDeleteUserPopup = false" 
+            />
+            <p-button 
+                label="Eliminar" 
+                [outlined]="true" 
+                severity="danger"
+                (onClick)="deleteUser()" 
+            />
+        </div>
+    </ng-template>
+</p-dialog>

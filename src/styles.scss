@@ -24,3 +24,8 @@ textarea {
     text-wrap: wrap;
     flex-wrap: wrap;
 }
+
+/* Para hacerlo menos prominente */
+.p-button {
+    padding: 7.5px !important;
+}

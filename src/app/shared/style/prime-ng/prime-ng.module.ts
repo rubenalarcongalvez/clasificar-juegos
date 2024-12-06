@@ -11,6 +11,10 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
+import { DialogModule } from 'primeng/dialog';
+import { MessagesModule } from 'primeng/messages';
+import { AvatarModule } from 'primeng/avatar';
+import { AccordionModule } from 'primeng/accordion';
 
 @NgModule({
   declarations: [],
@@ -26,7 +30,11 @@ import { PaginatorModule } from 'primeng/paginator';
     SelectButtonModule,
     ConfirmPopupModule,
     InputTextModule,
-    PaginatorModule
+    PaginatorModule,
+    DialogModule,
+    MessagesModule,
+    AvatarModule,
+    AccordionModule
   ]
 })
 export class PrimeNgModule { }

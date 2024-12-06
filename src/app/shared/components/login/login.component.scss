@@ -1,0 +1,61 @@
+:host ::ng-deep {
+    input {
+        padding: 5px;
+        border: 1px solid gray;
+        @apply rounded;
+    }
+
+    button {
+        padding: 10px;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    .p-message-wrapper {
+        margin-block: 5px;
+        padding: .75rem .5rem .5rem .5rem;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        .p-message-detail {
+            padding-bottom: 5px;
+            flex-grow: 1;
+        }
+
+        .p-message-close {
+            background-color: transparent;
+            color: crimson;
+            border: none;
+            outline: none;
+
+            svg {
+                padding-bottom: 5px;
+
+                &:hover {
+                    opacity: 60%;
+                }
+            }
+        }
+    }
+
+    .p-dialog-header-close {
+        color: black;
+        background-color: white;
+        margin-right: 5px;
+        border: none;
+        outline: none;
+    }
+
+    .cancel {
+        background-color: transparent;
+        color: black;
+        border: none;
+        outline: none;
+
+        &:hover {
+            color: rgba(0, 0, 0, 0.8);
+        }
+    }
+}
