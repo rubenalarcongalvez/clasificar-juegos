@@ -99,7 +99,7 @@ export class AppComponent {
 
   anadirAListados() {
     try {
-      //Anadimos los de la lista de no revisados
+      //Anadimos los de la lista de no revisados al final de la lista, puesto que los hemos anadido despues
       this.listaProveedores.filter(p => p.nombre != 'Grouvee').forEach(p => {
         const juegos: string[] = typeof p.listadoJuegos === 'string'
           ? this.convertirACadenaArray(p.listadoJuegos)
@@ -118,7 +118,7 @@ export class AppComponent {
         p.listadoJuegos = ''; //Reseteamos el input
       });
 
-      //Anadimos a la lista de revisados los de Grouvee
+      //Anadimos a la lista de revisados los de Grouvee. Pero estos, los anadimos al principio, ya que los hemos revisado ahora, o en fechas proximas
       this.listaProveedores.filter(p => p.nombre == 'Grouvee').forEach(p => {
         const juegos: string[] = typeof p.listadoJuegos === 'string'
           ? this.convertirACadenaArray(p.listadoJuegos)
@@ -127,7 +127,7 @@ export class AppComponent {
         juegos.forEach(nombreJuego => {
           // Lo anadimos solo si no lo hemos revisado o anadido antes
           if (!this.listaJuegosPorVer.find(j => j.nombre === nombreJuego) && !this.listaJuegosRevisados.find(j => j.nombre === nombreJuego)) {
-            this.listaJuegosRevisados.push({
+            this.listaJuegosRevisados.unshift({
               nombre: nombreJuego,
               urlYoutube: `https://www.youtube.com/results?search_query=${encodeURIComponent(nombreJuego + ' gameplay')}`
             });
