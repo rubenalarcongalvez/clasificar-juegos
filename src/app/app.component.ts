@@ -353,7 +353,7 @@ textosJuegos;
         });
         this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisar`).subscribe({
           next: (resp: any) => {
-            if (resp?.length) {
+            if (resp) {
               this.listaJuegosPorVer = resp?.['listaJuegosPorVer'];
             }
           },
@@ -363,7 +363,7 @@ textosJuegos;
         });
         this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisados`).subscribe({
           next: (resp: any) => {
-            if (resp?.length) {
+            if (resp) {
               this.listaJuegosRevisados = resp?.['listaJuegosRevisados'];
             }
           },
