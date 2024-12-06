@@ -41,6 +41,9 @@
                   <h1>Los juegos se añadirán a la lista de revisión</h1>
                   <article class="flex flex-col justify-center items-center gap-2 relative">
                     @for (proveedor of listaProveedores; track proveedor) {
+                      @if (proveedor.nombre == 'Grouvee') {
+                        <h1 class="w-full">Los juegos se añadirán a la lista de <span class="underline">revisados</span> (puedes hacerlo en tu propio link de Grouvee)</h1>
+                      }
                       <div class="flex justify-start gap-3 w-full">
                         <div class="relative cursor-pointer" (click)="codigoRecolectar(proveedor.clase, proveedor.nombre)" tooltipPosition="bottom" pTooltip="Copiar JavaScript para recolectar de {{ proveedor.nombre }}">
                           <img width="200" height="200" class="rounded" src="{{proveedor?.nombre?.toLowerCase()}}.png" [alt]="proveedor.nombre">
@@ -61,7 +64,7 @@
                 </section>
                 <div class="flex pt-4 gap-2 justify-between">
                     <p-button label="Atrás" severity="contrast" icon="pi pi-arrow-up" (onClick)="prevCallback.emit()" />
-                    <p-button label="Añadir al listado por revisar" icon="pi pi-arrow-down" iconPos="right" (onClick)="anadirAListadoPorVer(); nextCallback.emit()" />
+                    <p-button label="Añadir a listados" icon="pi pi-arrow-down" iconPos="right" (onClick)="anadirAListados(); nextCallback.emit()" />
                 </div>
             </ng-template>
         </p-stepperPanel>

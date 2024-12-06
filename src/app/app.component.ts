@@ -36,6 +36,9 @@ export class AppComponent {
   listaProveedores: Proveedor[] = [
     {nombre: 'Meristation', clase: 'ga__tl', activoEnClipboard: false, listadoJuegos: ''},
     {nombre: '3djuegos', clase: 's18 dib c0', activoEnClipboard: false, listadoJuegos: ''},
+
+    //Grouvee siempre el ultimo, para anadirlo a revisados
+    {nombre: 'Grouvee', clase: 'no-hover', activoEnClipboard: false, listadoJuegos: ''},
   ];
 
   fechasElegidas: Date = new Date();
@@ -94,9 +97,10 @@ export class AppComponent {
     }
   }
 
-  anadirAListadoPorVer() {
+  anadirAListados() {
     try {
-      this.listaProveedores.forEach(p => {
+      //Anadimos los de la lista de no revisados
+      this.listaProveedores.filter(p => p.nombre != 'Grouvee').forEach(p => {
         const juegos: string[] = typeof p.listadoJuegos === 'string'
           ? this.convertirACadenaArray(p.listadoJuegos)
           : p.listadoJuegos;
@@ -113,9 +117,30 @@ export class AppComponent {
 
         p.listadoJuegos = ''; //Reseteamos el input
       });
+
+      //Anadimos a la lista de revisados los de Grouvee
+      this.listaProveedores.filter(p => p.nombre == 'Grouvee').forEach(p => {
+        const juegos: string[] = typeof p.listadoJuegos === 'string'
+          ? this.convertirACadenaArray(p.listadoJuegos)
+          : p.listadoJuegos;
+    
+        juegos.forEach(nombreJuego => {
+          // Lo anadimos solo si no lo hemos revisado o anadido antes
+          if (!this.listaJuegosPorVer.find(j => j.nombre === nombreJuego) && !this.listaJuegosRevisados.find(j => j.nombre === nombreJuego)) {
+            this.listaJuegosRevisados.push({
+              nombre: nombreJuego,
+              urlYoutube: `https://www.youtube.com/results?search_query=${encodeURIComponent(nombreJuego + ' gameplay')}`
+            });
+          }
+        });
+
+        p.listadoJuegos = ''; //Reseteamos el input
+      });
       this.messageService.add({ severity: 'info', summary: 'Juegos añadidos', detail: 'Juegos añadidos al listado con éxito', life: 3000 });
       localStorage.setItem('listaJuegosPorVer', JSON.stringify(this.listaJuegosPorVer));
       this.actualizarListaRevisar();
+      localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegosRevisados));
+      this.actualizarListaRevisados();
     } catch {
       this.messageService.add({ severity: 'error', summary: 'Problema de formato', detail: 'No se añadieron los juegos debido a un problema de formato', life: 3000 });
     }
@@ -132,16 +157,28 @@ export class AppComponent {
   codigoRecolectar(clasesARecolectar: string, nombreProveedor: string) {
     clasesARecolectar = clasesARecolectar.replaceAll(' ', '.');
 
-    navigator.clipboard.writeText(`
-// Recolectar todos los elementos con la clase
+    if (nombreProveedor == 'Grouvee') {
+      navigator.clipboard.writeText(`// Recolectar todos los elementos con la clase 'no-hover'
 const elementos = document.querySelectorAll('.${clasesARecolectar}');
 
-// Extraer el texto de cada elemento y almacenarlo en un array
-const textosJuegos = Array.from(elementos).map(elemento => elemento.textContent);
+// Extraer el valor del atributo 'title' de cada elemento y almacenarlos en un array
+const textosJuegos = Array.from(elementos).map(elemento => elemento.getAttribute('title'));
 
-//Lo mostramos para poder copiarlo
-textosJuegos;
-    `);
+// Mostrar el array de títulos
+console.log(textosJuegos);
+`)
+    } else {
+      navigator.clipboard.writeText(`
+        // Recolectar todos los elementos con la clase
+        const elementos = document.querySelectorAll('.${clasesARecolectar}');
+        
+        // Extraer el texto de cada elemento y almacenarlo en un array
+        const textosJuegos = Array.from(elementos).map(elemento => elemento.textContent);
+        
+        //Lo mostramos para poder copiarlo
+        textosJuegos;
+            `);
+    }
 
     if (!this.listaProveedores.find(p => p.activoEnClipboard)) {
       this.listaProveedores.forEach(p => p.activoEnClipboard = (p.nombre == nombreProveedor));
@@ -159,6 +196,10 @@ textosJuegos;
           }
           case '3djuegos': {
             window.open(`https://www.3djuegos.com/lanzamientos/${mesElegido}-${anoElegido}/`);
+            break;
+          }
+          case 'Grouvee': {
+            window.open(`https://www.grouvee.com/user/116891-n3buresp1997/shelves/?sort_by=&dir=desc&dateFrom=&dateTo=&num=200&compact=2`);
             break;
           }
         }
