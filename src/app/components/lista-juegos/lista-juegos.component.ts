@@ -24,6 +24,7 @@ export class ListaJuegosComponent {
   @Output('anadirJuego') anadirJuego = new EventEmitter<AnadirJuego>();
   @Output('marcarComoRevisado') marcarComoRevisado = new EventEmitter<Videojuego>();
   @Output('volverARevisar') volverARevisar = new EventEmitter<Videojuego>();
+  @Output('setListasJuegos') setListasJuegos = new EventEmitter<void>();
   filtroSignal = signal<string>('');
   public get filtro() : string {
     return this.filtroSignal();
@@ -84,6 +85,7 @@ export class ListaJuegosComponent {
               }
           },
       });
+      this.setListasJuegos.emit();
   }
 
   public get listaJuegosFiltrada() : Videojuego[] {
@@ -114,6 +116,7 @@ export class ListaJuegosComponent {
         localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegos));
       }
     }
+    this.setListasJuegos.emit();
   }
 
   marcarComoRevisadoLista(videojuego: Videojuego, descartado: boolean = false) {
