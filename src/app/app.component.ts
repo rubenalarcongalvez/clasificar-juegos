@@ -62,8 +62,8 @@ export class AppComponent {
   });
 
   constructor(private messageService: MessageService, private cdr: ChangeDetectorRef, private storageService: StorageService, private authService: AuthService, private fb: FormBuilder) {
-    //3 meses antes
-    this.fechasElegidas.setMonth(this.fechasElegidas.getMonth() - 3);
+    //4 meses antes
+    this.fechasElegidas.setMonth(this.fechasElegidas.getMonth() - 4);
   }
 
   ngAfterViewInit() {
