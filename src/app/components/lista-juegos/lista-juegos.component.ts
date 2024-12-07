@@ -83,9 +83,9 @@ export class ListaJuegosComponent {
               } else {
                 localStorage.setItem('listaJuegosRevisados', JSON.stringify(this.listaJuegos));
               }
+              this.setListasJuegos.emit();
           },
       });
-      this.setListasJuegos.emit();
   }
 
   public get listaJuegosFiltrada() : Videojuego[] {
