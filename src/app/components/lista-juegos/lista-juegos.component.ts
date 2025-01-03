@@ -122,16 +122,13 @@ export class ListaJuegosComponent {
   marcarComoRevisadoLista(videojuego: Videojuego, descartado: boolean = false) {
     videojuego.descartado = descartado;
     this.marcarComoRevisado.emit(videojuego);
-
-    if (!descartado) {
-      //Vamos a anadirlo en Grouvee
-      setTimeout(() => {
-        window.open(`https://www.grouvee.com/search/?q=${encodeURIComponent(videojuego.nombre)}`);
-      }, 1000);
-    }
   }
 
   volverARevisarLista(videojuego: Videojuego) {
     this.volverARevisar.emit(videojuego);
+  }
+
+  buscarEnGrouvee(nombreJuego: string) {
+    window.open(`https://www.grouvee.com/search/?q=${encodeURIComponent(nombreJuego)}`);
   }
 }

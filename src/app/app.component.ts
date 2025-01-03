@@ -9,6 +9,7 @@ import { AuthService } from './shared/services/auth.service';
 import { User } from '@angular/fire/auth';
 import { LoginComponent } from './shared/components/login/login.component';
 import { Timestamp } from '@angular/fire/firestore';
+import { firstValueFrom } from 'rxjs';
 
 interface Proveedor {
   nombre: string,
@@ -42,6 +43,8 @@ export class AppComponent {
   ];
 
   fechasElegidas: Date = new Date();
+  ultimaFechaRevisada: string = '';
+
   listaOpcionesMostradas: string = 'revisar';
   listaJuegosPorVer: Videojuego[] = [];
   listaJuegosRevisados: Videojuego[] = [];
@@ -71,7 +74,13 @@ export class AppComponent {
       this.listaJuegosPorVer = JSON.parse(localStorage.getItem('listaJuegosPorVer')!) ?? [];
       this.listaJuegosRevisados = JSON.parse(localStorage.getItem('listaJuegosRevisados')!) ?? [];
     }
-    this.inicializarDatosBBDD();
+    this.inicializarDatosBBDD().then(() => {
+      // Para que solo se ejecute una vez
+      const fechaElegidaRevisada = new Date(this.fechasElegidas);
+      const mesElegidoRevisado = fechaElegidaRevisada.toLocaleString('es-ES', {month: 'long'});
+      const anoElegidoRevisado = fechaElegidaRevisada.getFullYear();
+      this.ultimaFechaRevisada = mesElegidoRevisado.charAt(0).toUpperCase() + mesElegidoRevisado.slice(1).toLowerCase() + ' de ' + anoElegidoRevisado;
+    });
     this.cdr.detectChanges();
   }
 
@@ -381,39 +390,48 @@ console.log(textosJuegos);
     return new Date(milliseconds);
   }
 
-  inicializarDatosBBDD() {
-    this.authService.getCurrentUserPeticion().subscribe((user) => {
-      if (user) {
-        this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/fechas-elegidas`).subscribe({
-          next: (resp: any) => {
-            this.fechasElegidas = this.convertirTimestampADate(resp?.['fechasElegidas']);
-          },
-          error: (err: any) => {
-            console.error(err);
+  async inicializarDatosBBDD(): Promise<void> {
+    const user = await firstValueFrom(this.authService.getCurrentUserPeticion());
+
+    if (!user) {
+      return;
+    }
+  
+    const promesas: Promise<any>[] = [];
+  
+    // Cargar fechas elegidas
+    promesas.push(
+      firstValueFrom(this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/fechas-elegidas`))
+        .then((resp: any) => {
+          this.fechasElegidas = this.convertirTimestampADate(resp?.['fechasElegidas']);
+        })
+        .catch((err) => console.error(err))
+    );
+  
+    // Cargar juegos por revisar
+    promesas.push(
+      firstValueFrom(this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisar`))
+        .then((resp: any) => {
+          if (resp) {
+            this.listaJuegosPorVer = resp?.['listaJuegosPorVer'];
           }
-        });
-        this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisar`).subscribe({
-          next: (resp: any) => {
-            if (resp) {
-              this.listaJuegosPorVer = resp?.['listaJuegosPorVer'];
-            }
-          },
-          error: (err: any) => {
-            console.error(err);
+        })
+        .catch((err) => console.error(err))
+    );
+  
+    // Cargar juegos revisados
+    promesas.push(
+      firstValueFrom(this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisados`))
+        .then((resp: any) => {
+          if (resp) {
+            this.listaJuegosRevisados = resp?.['listaJuegosRevisados'];
           }
-        });
-        this.storageService.getDocumentByAddress(`clasificar-juegos/users/${user?.uid}/revisados`).subscribe({
-          next: (resp: any) => {
-            if (resp) {
-              this.listaJuegosRevisados = resp?.['listaJuegosRevisados'];
-            }
-          },
-          error: (err: any) => {
-            console.error(err);
-          }
-        });
-      }
-    });
+        })
+        .catch((err) => console.error(err))
+    );
+  
+    // Esperar a que todas las promesas terminen
+    await Promise.all(promesas);
   }
   
   actualizarFecha() {

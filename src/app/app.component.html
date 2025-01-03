@@ -22,6 +22,9 @@
             <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
               <div class="flex flex-col gap-3 pt-4 justify-center items-center">
                   <h4 class="m-0">Por defecto, es: <code class="bg-gray-800 text-white rounded p-1">La fecha actual -4 meses</code> (margen para que terminen de rellenar juegos). A no ser que establezcas otra fecha estando logueado.</h4>
+                  @if (ultimaFechaRevisada && loggedIn) {
+                    <h3>Última fecha revisada: <span class="underline">{{ ultimaFechaRevisada }}</span></h3>
+                  }
                   <p-calendar 
                   [(ngModel)]="fechasElegidas" 
                   [defaultDate]="fechasElegidas"
